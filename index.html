@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bad Alien — Portfolio</title>
+<meta name="description" content="Bad Alien — developer building algorithmic trading tools and automation, learning in public one project at a time.">
+
+<!-- Favicon -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230E1116%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22%23E8A33D%22 font-family=%22serif%22>B</text></svg>">
+
+<!-- Open Graph / social sharing -->
+<meta property="og:title" content="Bad Alien — Portfolio">
+<meta property="og:description" content="Developer building algorithmic trading tools and automation. Learning in public, one project at a time.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bad Alien — Portfolio">
+<meta name="twitter:description" content="Developer building algorithmic trading tools and automation. Learning in public, one project at a time.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -37,6 +50,34 @@
   a{ color: inherit; text-decoration: none; }
 
   ::selection{ background: var(--accent); color: #0E1116; }
+
+  /* BACKGROUND: dot grid + chart lines */
+  .bg-layer{
+    position: fixed; inset: 0;
+    z-index: -2;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .bg-dots{
+    position: absolute; inset: -2px;
+    background-image: radial-gradient(var(--line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: 0.45;
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 40%, transparent 90%);
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 40%, transparent 90%);
+  }
+  .bg-chart{
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    opacity: 0.16;
+  }
+  .bg-chart path{
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+  .bg-chart .line-accent{ stroke: var(--accent); stroke-width: 1.5; }
+  .bg-chart .line-soft{ stroke: var(--ink-soft); stroke-width: 1; opacity: 0.6; }
+  .bg-chart .fill-accent{ fill: var(--accent); opacity: 0.06; }
 
   /* NAV */
   nav{
@@ -224,6 +265,115 @@
     transition: all .3s ease;
   }
   .work-item:hover .work-arrow{ opacity: 1; transform: translateX(0); }
+  .work-blurb{
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-top: 10px;
+    max-width: 52ch;
+  }
+
+  /* SKILLS BADGES */
+  .skills-row{
+    display:flex; flex-wrap:wrap; gap: 10px;
+  }
+  .skill-badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: 3px;
+  }
+  .resume-link{
+    display:inline-block;
+    margin-top: 4px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 3px;
+    transition: opacity .2s ease;
+  }
+  .resume-link:hover{ opacity: 0.75; }
+
+  /* NOTES / BLOG */
+  .notes-empty{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    border: 1px dashed var(--line);
+    padding: 32px;
+    text-align: center;
+    border-radius: 4px;
+  }
+
+  /* CONTACT FORM */
+  .contact-form{
+    display:flex; flex-direction:column; gap: 20px;
+    max-width: 520px;
+    margin-top: 50px;
+  }
+  .form-row{ display:flex; flex-direction:column; gap: 8px; }
+  .form-row label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .form-row input, .form-row textarea{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    padding: 12px 14px;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color .2s ease;
+  }
+  .form-row input:focus, .form-row textarea:focus{ border-color: var(--accent); }
+  .form-row textarea{ resize: vertical; min-height: 110px; font-family: 'Inter', sans-serif; }
+  .form-submit{
+    align-self: flex-start;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 15px 28px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all .25s ease;
+  }
+  .form-submit:hover{ background: var(--accent); color: #0E1116; }
+
+  /* BACK TO TOP */
+  .back-to-top{
+    position: fixed;
+    bottom: 28px; right: 28px;
+    width: 44px; height: 44px;
+    display:flex; align-items:center; justify-content:center;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--accent);
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity .25s ease, transform .25s ease, border-color .2s ease;
+    z-index: 90;
+  }
+  .back-to-top.visible{ opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .back-to-top:hover{ border-color: var(--accent); }
 
   /* ABOUT */
   .about-grid{
@@ -290,11 +440,21 @@
 </head>
 <body>
 
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-dots"></div>
+  <svg class="bg-chart" viewBox="0 0 1440 900" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path class="fill-accent" d="M0,620 L80,600 160,640 240,560 320,580 400,500 480,530 560,440 640,470 720,380 800,410 880,340 960,360 1040,300 1120,320 1200,260 1280,280 1360,230 1440,250 1440,900 0,900 Z"></path>
+    <path class="line-accent" d="M0,620 L80,600 160,640 240,560 320,580 400,500 480,530 560,440 640,470 720,380 800,410 880,340 960,360 1040,300 1120,320 1200,260 1280,280 1360,230 1440,250"></path>
+    <path class="line-soft" d="M0,760 L90,740 180,770 270,720 360,735 450,690 540,705 630,660 720,675 810,630 900,645 990,610 1080,620 1170,590 1260,600 1350,575 1440,585"></path>
+  </svg>
+</div>
+
 <nav id="nav">
   <div class="logo">Bad Alien</div>
   <div class="nav-links">
     <a href="#work">Work</a>
     <a href="#about">About</a>
+    <a href="#notes">Notes</a>
     <a href="#contact">Contact</a>
   </div>
 </nav>
@@ -317,30 +477,42 @@
       <div class="section-label">Selected Work</div>
       <div class="section-title">Recent Projects</div>
     </div>
-    <div class="section-count">03 / Featured</div>
+    <div class="section-count">04 / Featured</div>
   </div>
   <div class="work-list">
-    <div class="work-item fade-in">
+    <div class="work-item fade-in" onclick="window.open('xauusd-breakout-backtester.html', '_blank')">
       <div class="work-index">01</div>
+      <div>
+        <div class="work-name">XAUUSD Breakout Backtester</div>
+        <div class="work-tags">JavaScript · Canvas · Trading Strategy Simulation · 2026</div>
+        <div class="work-blurb">Simulates a support/resistance breakout strategy on real daily gold prices — or your own MT5 trade history — and checks results against funded-account rules like daily loss limit and max drawdown.</div>
+      </div>
+      <div class="work-arrow">↗</div>
+    </div>
+    <div class="work-item fade-in" onclick="window.open('https://github.com/sky250909-sketch/python-projects', '_blank')">
+      <div class="work-index">02</div>
       <div>
         <div class="work-name">To-Do List CLI</div>
         <div class="work-tags">Python · Command-Line App · 2026</div>
+        <div class="work-blurb">A terminal-based task manager — add, complete, and persist to-dos between sessions. Taught me file I/O and clean command parsing.</div>
       </div>
       <div class="work-arrow">↗</div>
     </div>
-    <div class="work-item fade-in">
-      <div class="work-index">02</div>
+    <div class="work-item fade-in" onclick="window.open('https://github.com/sky250909-sketch/python-projects', '_blank')">
+      <div class="work-index">03</div>
       <div>
         <div class="work-name">Sales Data Analyzer</div>
         <div class="work-tags">Python · Pandas · Data Analysis · 2026</div>
+        <div class="work-blurb">Parses raw sales CSVs and surfaces top-performing products and trends. First real project using pandas groupby and aggregation.</div>
       </div>
       <div class="work-arrow">↗</div>
     </div>
-    <div class="work-item fade-in">
-      <div class="work-index">03</div>
+    <div class="work-item fade-in" onclick="window.open('https://github.com/sky250909-sketch/python-projects', '_blank')">
+      <div class="work-index">04</div>
       <div>
         <div class="work-name">Sample Data Generator</div>
         <div class="work-tags">Python · CSV · Randomized Datasets · 2026</div>
+        <div class="work-blurb">Generates randomized, realistic CSV datasets for testing other tools — built to feed the Sales Data Analyzer above.</div>
       </div>
       <div class="work-arrow">↗</div>
     </div>
@@ -355,9 +527,9 @@
     </div>
   </div>
   <div class="about-grid">
-    <div class="about-text fade-in">
-      I'm Bad Alien — a student and developer who likes <span class="accent">learning by doing</span>. This site is a work in progress as I build out real projects and figure out what I want to focus on.
-    </div>
+   <div class="about-text fade-in">
+  I'm Bad Alien — a developer focused on <span class="accent">algorithmic trading</span> and the tools that power it. I build systems that turn data into decisions: backtesters, signal generators, and automation that runs while I sleep. Still early in the journey, but building in public, one project at a time.
+</div>
     <div class="about-meta fade-in">
       <div class="meta-block">
         <div class="meta-label">Based In</div>
@@ -369,14 +541,57 @@
       </div>
       <div class="meta-block">
         <div class="meta-label">Tools</div>
-        <div class="meta-value">HTML, CSS, JavaScript, Git/GitHub</div>
+        <div class="skills-row">
+          <span class="skill-badge">Python</span>
+          <span class="skill-badge">Pandas</span>
+          <span class="skill-badge">HTML</span>
+          <span class="skill-badge">CSS</span>
+          <span class="skill-badge">JavaScript</span>
+          <span class="skill-badge">Git / GitHub</span>
+        </div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Resume</div>
+        <!-- TODO: replace with your actual resume file, e.g. /resume.pdf -->
+        <a href="#" class="resume-link">Download Resume ↓</a>
       </div>
     </div>
   </div>
 </section>
 
+<section id="notes">
+  <div class="section-head">
+    <div>
+      <div class="section-label">Notes</div>
+      <div class="section-title">Building in Public</div>
+    </div>
+  </div>
+  <!-- TODO: replace this with real posts once you start writing them -->
+  <div class="notes-empty fade-in">No notes yet — check back soon as new projects and write-ups get posted here.</div>
+</section>
+
 <footer id="contact">
   <div class="footer-title fade-in">Let's build <em>something</em> together.</div>
+
+  <!-- Contact form: opens the visitor's email client with the message pre-filled.
+       For a true no-reload submission, swap the form action for a service like
+       Formspree or Getform and point it at their endpoint URL. -->
+  <form class="contact-form fade-in" action="mailto:sky250909@gmail.com" method="post" enctype="text/plain">
+    <div class="form-row">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="Name" required>
+    </div>
+    <div class="form-row">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="Email" required>
+    </div>
+    <div class="form-row">
+      <label for="message">Message</label>
+      <textarea id="message" name="Message" required></textarea>
+    </div>
+    <button type="submit" class="form-submit">Send Message</button>
+  </form>
+
   <div class="footer-bottom">
     <div>© 2026 Bad Alien</div>
     <div class="footer-links">
@@ -385,6 +600,8 @@
     </div>
   </div>
 </footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
 <script>
   // nav border on scroll
@@ -417,7 +634,6 @@ function typeWriter() {
 }
 
 typeWriter();
-typeWriter();
 
 // scroll fade-in
 const fadeElements = document.querySelectorAll('.fade-in');
@@ -431,6 +647,15 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 
 fadeElements.forEach(el => observer.observe(el));
+
+// back to top button
+const backToTop = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  backToTop.classList.toggle('visible', window.scrollY > 500);
+});
+backToTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 </script>
 
 </body>

@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>XAUUSD Breakout Backtester</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bg:#0B1520;
+    --panel:#12202E;
+    --panel-2:#0E1A26;
+    --line:#1F3040;
+    --text:#E8EDF2;
+    --muted:#7C8B9B;
+    --long:#3FB68B;
+    --short:#E2604F;
+    --resistance:#D9A441;
+    --support:#4E8FBF;
+    --focus:#6FB8E8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans',sans-serif;
+    padding:32px 24px 60px;
+  }
+  .wrap{max-width:1100px;margin:0 auto;}
+  header{margin-bottom:28px;}
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:28px;
+    font-weight:700;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header p{color:var(--muted);margin:0;font-size:14px;max-width:640px;line-height:1.5;}
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:20px;
+  }
+  .panel h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    margin:0 0 16px;
+    font-weight:600;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:14px;
+  }
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;}
+  select,input{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:6px;
+    padding:9px 10px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+  }
+  select:focus,input:focus{outline:2px solid var(--focus);outline-offset:1px;}
+
+  .direction-toggle{display:flex;gap:8px;}
+  .direction-toggle button{
+    flex:1;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:9px 10px;
+    border-radius:6px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .direction-toggle button.active{
+    border-color:var(--focus);
+    color:var(--text);
+    background:#152535;
+  }
+
+  .run-row{margin-top:18px;display:flex;align-items:center;gap:14px;}
+  #runBtn{
+    background:var(--long);
+    color:#06231A;
+    border:none;
+    font-weight:600;
+    font-family:'Space Grotesk',sans-serif;
+    padding:12px 22px;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:14px;
+  }
+  #runBtn:disabled{opacity:.5;cursor:not-allowed;}
+  #status{font-size:13px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+    gap:14px;
+  }
+  .stat{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+  }
+  .stat .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .stat .value{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;}
+  .pos{color:var(--long);}
+  .neg{color:var(--short);}
+
+  canvas{width:100%;display:block;border-radius:6px;}
+  .legend{display:flex;gap:18px;margin-top:10px;font-size:12px;color:var(--muted);flex-wrap:wrap;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:500;text-transform:uppercase;font-size:10.5px;letter-spacing:.05em;}
+  tbody tr:hover{background:var(--panel-2);}
+  .table-scroll{max-height:340px;overflow-y:auto;}
+
+  .empty{color:var(--muted);font-size:13px;padding:20px 0;text-align:center;}
+  .note{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    padding:8px 14px;
+    border-radius:7px;
+  }
+  .badge.pass{background:rgba(63,182,139,.15);color:var(--long);border:1px solid rgba(63,182,139,.4);}
+  .badge.fail{background:rgba(226,96,79,.15);color:var(--short);border:1px solid rgba(226,96,79,.4);}
+  .badge-detail{color:var(--muted);font-size:13px;margin-top:8px;font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>XAUUSD Breakout Backtester</h1>
+    <p>Simulate a support/resistance breakout strategy on real daily gold (XAU/USD) prices, or upload your own MT5 trade history to check it against funded-account rules. Either way, results are checked against a daily loss limit, max drawdown, and profit target.</p>
+  </header>
+
+  <div class="panel">
+    <h2>Setup</h2>
+
+    <div style="margin-bottom:18px;">
+      <label>Data source</label>
+      <div class="direction-toggle" style="max-width:460px;">
+        <button id="modeSim" class="active" type="button">Simulate breakout strategy</button>
+        <button id="modeMT5" type="button">Upload my MT5 history</button>
+      </div>
+    </div>
+
+    <div id="simFields">
+      <div class="grid">
+        <div>
+          <label>Instrument</label>
+          <input type="text" value="XAU/USD (Gold Spot)" disabled>
+        </div>
+        <div>
+          <label for="timeframe">Timeframe</label>
+          <select id="timeframe">
+            <option value="1D" selected>Daily (real closes)</option>
+            <option value="4H">4-Hour (synthetic)</option>
+            <option value="1H">1-Hour (synthetic)</option>
+            <option value="15m">15-Minute (synthetic)</option>
+          </select>
+        </div>
+        <div>
+          <label for="start">Start date</label>
+          <input type="date" id="start">
+        </div>
+        <div>
+          <label for="end">End date</label>
+          <input type="date" id="end">
+        </div>
+        <div>
+          <label for="lookback">Lookback (bars)</label>
+          <input type="number" id="lookback" value="20" min="3" max="500">
+        </div>
+        <div>
+          <label for="sl">Stop loss (%)</label>
+          <input type="number" id="sl" value="1.0" step="0.1" min="0.1">
+        </div>
+        <div>
+          <label for="tp">Take profit (%)</label>
+          <input type="number" id="tp" value="2.0" step="0.1" min="0.1">
+        </div>
+        <div>
+          <label for="risk">Risk per trade (% of account)</label>
+          <input type="number" id="risk" value="1.0" step="0.1" min="0.1">
+        </div>
+        <div>
+          <label>Direction</label>
+          <div class="direction-toggle">
+            <button id="dirLong" class="active" type="button">Long only</button>
+            <button id="dirBoth" type="button">Long &amp; short</button>
+          </div>
+        </div>
+      </div>
+      <div id="syntheticNote" class="note" style="display:none;margin-top:12px;padding:10px 12px;border:1px solid rgba(217,164,65,.4);background:rgba(217,164,65,.08);border-radius:6px;color:var(--text);">
+        <strong style="color:var(--resistance);">Synthetic data notice:</strong> only daily closes are available from the free data source, so sub-daily bars are generated by interpolating a random-walk bridge between each real daily close. The daily open/close points are real; everything in between is a statistically plausible but fabricated path. This is useful for sanity-checking your entry/exit logic at finer granularity, but the exact trade prices, whipsaws, and stop/target touches are <em>not</em> real market data — don't treat these results as validation of live intraday performance. Re-running the same window will generate a different random path each time.
+      </div>
+    </div>
+
+    <div id="mt5Fields" style="display:none;">
+      <div class="grid">
+        <div>
+          <label for="mt5File">MT5 history file (.htm/.html report or .csv)</label>
+          <input type="file" id="mt5File" accept=".htm,.html,.csv">
+        </div>
+        <div>
+          <label for="mt5Symbol">Symbol filter</label>
+          <select id="mt5Symbol"><option value="">Upload a file first</option></select>
+        </div>
+      </div>
+      <div class="note" style="margin-top:10px;">
+        In the MT5 terminal: open the <strong>History</strong> tab, right-click, choose <strong>Report → Save as Report</strong> (produces an .htm file covering the period shown). Upload that file here — your actual closed trades are read directly from it; no strategy is simulated. A .csv export with columns like Time, Symbol, Type, Volume, Price, Profit, and (ideally) Balance also works.
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:18px;">
+      <div>
+        <label for="account">Account size ($)</label>
+        <input type="number" id="account" value="2500" min="100">
+      </div>
+      <div>
+        <label for="dailyLossLimit">Max daily loss ($)</label>
+        <input type="number" id="dailyLossLimit" value="75" min="1">
+      </div>
+      <div>
+        <label for="maxDrawdownLimit">Max overall drawdown ($)</label>
+        <input type="number" id="maxDrawdownLimit" value="150" min="1">
+      </div>
+      <div>
+        <label for="profitTarget">Profit target ($)</label>
+        <input type="number" id="profitTarget" value="150" min="1">
+      </div>
+    </div>
+
+    <div class="run-row">
+      <button id="runBtn">Run backtest</button>
+      <span id="status"></span>
+    </div>
+  </div>
+
+  <div id="results" style="display:none;">
+    <div class="panel">
+      <h2>Results</h2>
+      <div class="stats" id="statsGrid"></div>
+    </div>
+
+    <div class="panel" id="challengePanel">
+      <h2>Funded account rules check</h2>
+      <div id="challengeStatus"></div>
+      <div class="table-scroll" style="margin-top:12px;">
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Event</th><th>Detail</th></tr>
+          </thead>
+          <tbody id="ruleEventsBody"></tbody>
+        </table>
+      </div>
+      <div id="noRuleEvents" class="empty" style="display:none;">No daily-loss or drawdown breaches in this window, and the profit target wasn't reached.</div>
+    </div>
+
+    <div class="panel" id="priceChartPanel">
+      <h2>Price &amp; signals</h2>
+      <canvas id="priceChart" height="280"></canvas>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--text)"></span>Close price</span>
+        <span><span class="dot" style="background:var(--resistance)"></span>Resistance (rolling high)</span>
+        <span><span class="dot" style="background:var(--support)"></span>Support (rolling low)</span>
+        <span><span class="dot" style="background:var(--long)"></span>Entry</span>
+        <span><span class="dot" style="background:var(--short)"></span>Exit</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Equity curve</h2>
+      <canvas id="equityChart" height="220"></canvas>
+    </div>
+
+    <div class="panel">
+      <h2>Trade log</h2>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr id="tradeHeadRow"><th>#</th><th>Side</th><th>Entry date</th><th>Entry</th><th>Exit date</th><th>Exit</th><th>Reason</th><th>Return</th></tr>
+          </thead>
+          <tbody id="tradeBody"></tbody>
+        </table>
+      </div>
+      <div id="noTrades" class="empty" style="display:none;">No trades were triggered in this window — try a shorter lookback or a wider date range.</div>
+    </div>
+  </div>
+
+  <div class="note">Data: freegoldapi.com, no key required — daily gold (XAU/USD) prices sourced from Yahoo Finance gold futures (GC=F) from 2025 onward; earlier dates fall back to monthly/annual sources and are too sparse for this backtest. Real prices are daily closes, not intrabar highs/lows. Choosing a 4H/1H/15m timeframe does <strong>not</strong> fetch real intraday data (no free, no-key, CORS-enabled source for that exists) — instead it fabricates plausible sub-daily bars between each pair of real daily closes via a seeded random-walk bridge, so you can sanity-check how your lookback/SL/TP logic behaves at finer granularity. Only the daily open/close anchor points are real. The rules check marks open positions to market at each bar's close to approximate loss since the start of each calendar day, and uses a trailing peak-to-equity drawdown — verify the exact calculation method (balance vs. equity, static vs. trailing) against your funded account's actual rules, since firms vary. Educational tool only — not investment or trading advice.</div>
+</div>
+
+<script>
+const endInput = document.getElementById('end');
+const startInput = document.getElementById('start');
+const today = new Date();
+const oneYearAgo = new Date(); oneYearAgo.setFullYear(today.getFullYear()-1);
+endInput.value = today.toISOString().slice(0,10);
+startInput.value = oneYearAgo.toISOString().slice(0,10);
+
+document.getElementById('timeframe').addEventListener('change', (e)=>{
+  document.getElementById('syntheticNote').style.display = e.target.value==='1D' ? 'none' : 'block';
+});
+
+let direction = "long";
+document.getElementById('dirLong').onclick = ()=>{
+  direction="long";
+  document.getElementById('dirLong').classList.add('active');
+  document.getElementById('dirBoth').classList.remove('active');
+};
+document.getElementById('dirBoth').onclick = ()=>{
+  direction="both";
+  document.getElementById('dirBoth').classList.add('active');
+  document.getElementById('dirLong').classList.remove('active');
+};
+
+let mode = "sim";
+let mt5Deals = [];
+document.getElementById('modeSim').onclick = ()=>{
+  mode="sim";
+  document.getElementById('modeSim').classList.add('active');
+  document.getElementById('modeMT5').classList.remove('active');
+  document.getElementById('simFields').style.display='block';
+  document.getElementById('mt5Fields').style.display='none';
+  document.getElementById('runBtn').textContent='Run backtest';
+  document.getElementById('status').textContent='';
+};
+document.getElementById('modeMT5').onclick = ()=>{
+  mode="mt5";
+  document.getElementById('modeMT5').classList.add('active');
+  document.getElementById('modeSim').classList.remove('active');
+  document.getElementById('simFields').style.display='none';
+  document.getElementById('mt5Fields').style.display='block';
+  document.getElementById('runBtn').textContent='Analyze my trade history';
+  document.getElementById('status').textContent='';
+};
+
+document.getElementById('runBtn').onclick = ()=> mode==='sim' ? runBacktest() : runMT5Backtest();
+
+function normalizeDate(raw){
+  if(!raw) return null;
+  let m = raw.match(/(\d{4})[.\-\/](\d{2})[.\-\/](\d{2})/);
+  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = raw.match(/(\d{2})[.\-\/](\d{2})[.\-\/](\d{4})/);
+  if(m) return `${m[3]}-${m[2]}-${m[1]}`;
+  return null;
+}
+function parseNum(s){
+  if(s==null) return NaN;
+  return parseFloat(String(s).replace(/[,\s]/g,'').replace(/[^0-9.\-]/g,''));
+}
+
+function extractDealsFromHeaderAndRows(headerCells, rowsOfCells){
+  const idx = name => headerCells.findIndex(h=>h.toLowerCase().includes(name));
+  const iTime = idx('time'), iSymbol = idx('symbol'), iType = idx('type'),
+        iVolume = (idx('volume')>=0?idx('volume'):idx('lots')), iPrice = idx('price'),
+        iProfit = idx('profit'), iBalance = idx('balance'),
+        iCommission = idx('commission'), iSwap = idx('swap');
+  const deals = [];
+  rowsOfCells.forEach(cells=>{
+    const timeRaw = iTime>=0 ? cells[iTime] : '';
+    const date = normalizeDate(timeRaw);
+    if(!date) return;
+    const profit = iProfit>=0 ? parseNum(cells[iProfit]) : NaN;
+    if(isNaN(profit)) return;
+    deals.push({
+      date, time:timeRaw,
+      symbol: iSymbol>=0 ? cells[iSymbol] : '',
+      type: iType>=0 ? cells[iType] : '',
+      volume: iVolume>=0 ? parseNum(cells[iVolume]) : null,
+      price: iPrice>=0 ? parseNum(cells[iPrice]) : null,
+      profit,
+      commission: iCommission>=0 ? (parseNum(cells[iCommission])||0) : 0,
+      swap: iSwap>=0 ? (parseNum(cells[iSwap])||0) : 0,
+      balance: iBalance>=0 ? parseNum(cells[iBalance]) : null
+    });
+  });
+  return deals;
+}
+
+function parseMT5Html(text){
+  const doc = new DOMParser().parseFromString(text, 'text/html');
+  const tables = Array.from(doc.querySelectorAll('table'));
+  for(const table of tables){
+    const rows = Array.from(table.querySelectorAll('tr'));
+    for(let r=0;r<rows.length;r++){
+      const cells = Array.from(rows[r].querySelectorAll('th,td')).map(c=>c.textContent.trim());
+      const lower = cells.map(c=>c.toLowerCase());
+      if(lower.includes('profit') && (lower.includes('balance') || lower.includes('symbol'))){
+        const dataRows = rows.slice(r+1).map(row=>Array.from(row.querySelectorAll('th,td')).map(c=>c.textContent.trim()));
+        const deals = extractDealsFromHeaderAndRows(cells, dataRows);
+        if(deals.length) return deals;
+      }
+    }
+  }
+  return [];
+}
+
+function parseMT5Csv(text){
+  const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
+  const headerLineIdx = lines.findIndex(l=>/profit/i.test(l));
+  if(headerLineIdx===-1) return [];
+  const headerLine = lines[headerLineIdx];
+  const semi = (headerLine.match(/;/g)||[]).length, comma=(headerLine.match(/,/g)||[]).length, tab=(headerLine.match(/\t/g)||[]).length;
+  const delim = semi>comma && semi>tab ? ';' : (tab>comma ? '\t' : ',');
+  const headerCells = headerLine.split(delim).map(h=>h.trim().replace(/^"|"$/g,''));
+  const dataRows = lines.slice(headerLineIdx+1).map(l=>l.split(delim).map(c=>c.trim().replace(/^"|"$/g,'')));
+  return extractDealsFromHeaderAndRows(headerCells, dataRows);
+}
+
+document.getElementById('mt5File').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const status = document.getElementById('status');
+  status.textContent = "Parsing file...";
+  try{
+    const text = await file.text();
+    const isHtml = /<html|<table/i.test(text.slice(0,3000)) || /\.html?$/i.test(file.name);
+    mt5Deals = isHtml ? parseMT5Html(text) : parseMT5Csv(text);
+    if(!mt5Deals.length){
+      status.textContent = "Couldn't find recognizable trade data in that file. Make sure it's an MT5 \u201cSave as Report\u201d .htm export, or a CSV with Time/Symbol/Profit columns.";
+      return;
+    }
+    mt5Deals.sort((a,b)=> (a.date+a.time) < (b.date+b.time) ? -1 : ((a.date+a.time) > (b.date+b.time) ? 1 : 0));
+    const symbols = Array.from(new Set(mt5Deals.map(d=>d.symbol).filter(Boolean))).sort();
+    const sel = document.getElementById('mt5Symbol');
+    sel.innerHTML = '<option value="">All symbols</option>' + symbols.map(s=>`<option value="${s}">${s}</option>`).join('');
+    const goldMatch = symbols.find(s=>/xau/i.test(s));
+    if(goldMatch) sel.value = goldMatch;
+    status.textContent = `Parsed ${mt5Deals.length} deal row(s) across ${symbols.length||0} symbol(s), spanning ${mt5Deals[0].date} to ${mt5Deals[mt5Deals.length-1].date}. Ready to analyze.`;
+  }catch(err){
+    status.textContent = "Failed to read file: " + err.message;
+  }
+});
+
+function checkDailyRules(dailyPoints, account, dailyLossLimit, maxDrawdownLimit, profitTarget){
+  const ruleEvents = [];
+  let prev = account, peak = account, stoppedEarly=false, stopReason=null;
+  const curveFull = [];
+  for(const p of dailyPoints){
+    curveFull.push(p);
+    const change = p.equity - prev;
+    if(change <= -dailyLossLimit){
+      ruleEvents.push({date:p.date, type:'Daily loss limit breached', detail:`Day's equity moved ${change.toFixed(2)} vs. limit of -${dailyLossLimit}`});
+      stoppedEarly=true; stopReason='daily_loss'; break;
+    }
+    if(p.equity>peak) peak=p.equity;
+    const dd = peak - p.equity;
+    if(dd>=maxDrawdownLimit){
+      ruleEvents.push({date:p.date, type:'Max drawdown breached', detail:`Drawdown from peak reached ${dd.toFixed(2)} vs. limit of ${maxDrawdownLimit}`});
+      stoppedEarly=true; stopReason='drawdown'; break;
+    }
+    if(p.equity-account >= profitTarget){
+      ruleEvents.push({date:p.date, type:'Profit target reached', detail:`Equity gain hit +${(p.equity-account).toFixed(2)} vs. target of ${profitTarget}`});
+      stoppedEarly=true; stopReason='target'; break;
+    }
+    prev = p.equity;
+  }
+  return {dailyCurveFull:curveFull, ruleEvents, stoppedEarly, stopReason};
+}
+
+async function runMT5Backtest(){
+  const btn = document.getElementById('runBtn');
+  const status = document.getElementById('status');
+  if(!mt5Deals || !mt5Deals.length){
+    status.textContent = "Upload an MT5 history file first.";
+    return;
+  }
+  const account = parseFloat(document.getElementById('account').value);
+  const dailyLossLimit = parseFloat(document.getElementById('dailyLossLimit').value);
+  const maxDrawdownLimit = parseFloat(document.getElementById('maxDrawdownLimit').value);
+  const profitTarget = parseFloat(document.getElementById('profitTarget').value);
+  const symbolFilter = document.getElementById('mt5Symbol').value;
+
+  btn.disabled = true;
+  status.textContent = "Building equity curve from your trade history...";
+  document.getElementById('results').style.display='none';
+
+  try{
+    const hasBalanceCol = mt5Deals.some(d=>d.balance!=null && !isNaN(d.balance));
+    let running = account;
+    const withBalance = mt5Deals.map(d=>{
+      if(hasBalanceCol && d.balance!=null && !isNaN(d.balance)){
+        running = d.balance;
+      } else {
+        running += (d.profit||0) + (d.commission||0) + (d.swap||0);
+      }
+      return Object.assign({}, d, {runningBalance:running});
+    });
+
+    const byDate = {};
+    withBalance.forEach(d=>{ byDate[d.date] = d.runningBalance; });
+    const dailyDates = Object.keys(byDate).sort();
+    const dailyPoints = dailyDates.map(dt=>({date:dt, equity:byDate[dt]}));
+
+    const challenge = checkDailyRules(dailyPoints, account, dailyLossLimit, maxDrawdownLimit, profitTarget);
+
+    const closingDeals = mt5Deals.filter(d=> d.symbol && (symbolFilter ? d.symbol===symbolFilter : true) && d.profit!==0);
+    const wins = closingDeals.filter(d=>d.profit>0);
+    const losses = closingDeals.filter(d=>d.profit<=0);
+    const grossProfit = wins.reduce((s,d)=>s+d.profit,0);
+    const grossLoss = Math.abs(losses.reduce((s,d)=>s+d.profit,0));
+    const winRate = closingDeals.length ? (wins.length/closingDeals.length)*100 : 0;
+    const profitFactor = grossLoss>0 ? grossProfit/grossLoss : (grossProfit>0?Infinity:0);
+
+    let peak=account, maxDD=0;
+    challenge.dailyCurveFull.forEach(p=>{
+      if(p.equity>peak) peak=p.equity;
+      const ddPct = (peak-p.equity)/peak*100;
+      if(ddPct>maxDD) maxDD=ddPct;
+    });
+
+    const finalEquity = challenge.dailyCurveFull.length ? challenge.dailyCurveFull[challenge.dailyCurveFull.length-1].equity : account;
+    const totalReturn = ((finalEquity-account)/account)*100;
+
+    const result = {
+      trades: closingDeals,
+      dailyCurve: challenge.dailyCurveFull,
+      stats:{totalReturn, winRate, profitFactor, maxDD, count:closingDeals.length,
+             avgWin: wins.length?grossProfit/wins.length:0,
+             avgLoss: losses.length?grossLoss/losses.length:0,
+             finalEquity},
+      challenge:{stoppedEarly:challenge.stoppedEarly, stopReason:challenge.stopReason, ruleEvents:challenge.ruleEvents,
+                 account, dailyLossLimit, maxDrawdownLimit, profitTarget}
+    };
+
+    renderMT5Results(result);
+    status.textContent = `Done — ${closingDeals.length} closing trade(s)${symbolFilter?` for ${symbolFilter}`:' across all symbols'}. Rules check used your full account balance across all symbols.`;
+  }catch(err){
+    status.textContent = "Error analyzing history: " + err.message;
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function renderMT5Results(result){
+  document.getElementById('priceChartPanel').style.display = 'none';
+  document.getElementById('results').style.display='block';
+  const s = result.stats;
+  const statsGrid = document.getElementById('statsGrid');
+  const fmt = (n,d=2)=>Number(n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
+  statsGrid.innerHTML = `
+    <div class="stat"><div class="label">Total return</div><div class="value ${s.totalReturn>=0?'pos':'neg'}">${s.totalReturn>=0?'+':''}${fmt(s.totalReturn)}%</div></div>
+    <div class="stat"><div class="label">Win rate</div><div class="value">${fmt(s.winRate,1)}%</div></div>
+    <div class="stat"><div class="label">Profit factor</div><div class="value">${isFinite(s.profitFactor)?fmt(s.profitFactor):'∞'}</div></div>
+    <div class="stat"><div class="label">Max drawdown</div><div class="value neg">${fmt(s.maxDD)}%</div></div>
+    <div class="stat"><div class="label">Closing trades</div><div class="value">${s.count}</div></div>
+    <div class="stat"><div class="label">Avg win</div><div class="value pos">$${fmt(s.avgWin)}</div></div>
+    <div class="stat"><div class="label">Avg loss</div><div class="value neg">$${fmt(s.avgLoss)}</div></div>
+    <div class="stat"><div class="label">Final balance</div><div class="value">$${fmt(s.finalEquity)}</div></div>
+  `;
+
+  drawEquityChart(result.dailyCurve, result.challenge);
+  renderChallengeStatus(result.challenge);
+
+  document.getElementById('tradeHeadRow').innerHTML =
+    '<th>#</th><th>Time</th><th>Symbol</th><th>Type</th><th>Volume</th><th>Price</th><th>Profit</th>';
+  const tbody = document.getElementById('tradeBody');
+  tbody.innerHTML = '';
+  document.getElementById('noTrades').style.display = result.trades.length ? 'none':'block';
+  result.trades.forEach((t,i)=>{
+    const tr = document.createElement('tr');
+    const color = t.profit>=0 ? 'pos':'neg';
+    tr.innerHTML = `<td>${i+1}</td><td>${t.time||t.date}</td><td>${t.symbol}</td><td>${t.type||''}</td>
+      <td>${t.volume!=null?fmt(t.volume,2):''}</td><td>${t.price!=null?'$'+fmt(t.price,2):''}</td>
+      <td class="${color}">${t.profit>=0?'+':''}$${fmt(t.profit,2)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+const BARS_PER_DAY = {'1D':1, '4H':6, '1H':24, '15m':96};
+
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function gaussian(rng){
+  let u=0, v=0;
+  while(u===0) u=rng();
+  while(v===0) v=rng();
+  return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+}
+function hashSeed(str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = (Math.imul(31,h) + str.charCodeAt(i))|0; }
+  return h;
+}
+
+// Expands real daily closes into synthetic sub-daily bars via a Brownian bridge
+// between each pair of consecutive real daily closes. Endpoints (the daily
+// closes themselves) are real; everything between them is fabricated noise
+// shaped to look like a plausible intraday path, seeded per run.
+function expandToIntraday(dates, closes, timeframe){
+  const n = BARS_PER_DAY[timeframe];
+  if(n<=1) return {dates, closes};
+  const runSeed = hashSeed(dates[0]+'|'+dates[dates.length-1]+'|'+timeframe+'|'+Date.now());
+  const rng = mulberry32(runSeed);
+  const hoursStep = 24/n;
+  const outDates = [], outCloses = [];
+  for(let d=0; d<closes.length; d++){
+    const A = d===0 ? closes[0] : closes[d-1];
+    const B = closes[d];
+    const dailyMoveVol = Math.abs(B-A)/A;
+    // base intraday chop even on flat days, plus a share of the day's realized move
+    const sigma = A * Math.max(dailyMoveVol*0.6, 0.0015) / Math.sqrt(n);
+    // Brownian bridge: random walk pinned to 0 at both ends, then mapped onto the A->B line
+    const raw = [0];
+    for(let i=1;i<=n;i++) raw.push(raw[i-1] + gaussian(rng)*sigma);
+    const driftPerStep = raw[n]/n;
+    for(let i=(d===0?0:1); i<=n; i++){
+      if(d===0 && i===0) continue; // skip duplicate anchor for the very first day
+      const bridgeVal = raw[i] - driftPerStep*i;
+      const linear = A + (B-A)*(i/n);
+      const price = i===n ? B : linear + bridgeVal; // force exact real close at day's last bar
+      const hour = Math.round(i*hoursStep) % 24;
+      const hh = String(hour).padStart(2,'0');
+      outDates.push(`${dates[d]} ${hh}:00`);
+      outCloses.push(price);
+    }
+  }
+  return {dates:outDates, closes:outCloses};
+}
+
+async function runBacktest(){
+  const btn = document.getElementById('runBtn');
+  const status = document.getElementById('status');
+  const start = startInput.value, end = endInput.value;
+  const timeframe = document.getElementById('timeframe').value;
+  const lookback = parseInt(document.getElementById('lookback').value,10);
+  const slPct = parseFloat(document.getElementById('sl').value)/100;
+  const tpPct = parseFloat(document.getElementById('tp').value)/100;
+  const riskPct = parseFloat(document.getElementById('risk').value)/100;
+  const account = parseFloat(document.getElementById('account').value);
+  const dailyLossLimit = parseFloat(document.getElementById('dailyLossLimit').value);
+  const maxDrawdownLimit = parseFloat(document.getElementById('maxDrawdownLimit').value);
+  const profitTarget = parseFloat(document.getElementById('profitTarget').value);
+
+  btn.disabled = true;
+  status.textContent = "Fetching gold prices...";
+  document.getElementById('results').style.display='none';
+
+  try{
+    const res = await fetch('https://freegoldapi.com/data/latest.json');
+    if(!res.ok) throw new Error("API error "+res.status);
+    const all = await res.json();
+    // Keep one price per calendar day within the selected range, sorted ascending.
+    const byDate = {};
+    all.forEach(row=>{
+      if(row.date >= start && row.date <= end){
+        byDate[row.date] = row.price;
+      }
+    });
+    let dailyDates = Object.keys(byDate).sort();
+    if(dailyDates.length < 8){
+      status.textContent = "Not enough daily data points in this window. Daily gold data is only available from 2025 onward — try a range within the last year or two.";
+      btn.disabled = false;
+      return;
+    }
+    const dailyCloses = dailyDates.map(d=>byDate[d]);
+
+    let dates, closes;
+    if(timeframe==='1D'){
+      dates = dailyDates; closes = dailyCloses;
+    } else {
+      status.textContent = `Loaded ${dailyDates.length} daily closes. Generating synthetic ${timeframe} bars...`;
+      const expanded = expandToIntraday(dailyDates, dailyCloses, timeframe);
+      dates = expanded.dates; closes = expanded.closes;
+      if(dates.length > 60000){
+        status.textContent = `That's ${dates.length.toLocaleString()} synthetic bars — narrow the date range for a ${timeframe} timeframe (it can get slow above ~60,000 bars).`;
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    if(closes.length < lookback+5){
+      status.textContent = "Not enough bars in this window for the chosen lookback — try a shorter lookback or a wider date range.";
+      btn.disabled = false;
+      return;
+    }
+    status.textContent = timeframe==='1D'
+      ? `Loaded ${dates.length} daily closes. Running backtest...`
+      : `Generated ${dates.length} synthetic ${timeframe} bars from ${dailyDates.length} real daily closes. Running backtest...`;
+
+    const result = backtest(dates, closes, lookback, slPct, tpPct, riskPct, account, direction, dailyLossLimit, maxDrawdownLimit, profitTarget);
+    renderResults(result, dates, closes, lookback);
+    status.textContent = `Done — ${result.trades.length} trade(s) simulated${result.challenge.stoppedEarly ? ' (stopped early — see rules check below)' : ''}.` +
+      (timeframe!=='1D' ? ' Remember: sub-daily bars are synthetic, not real intraday prices.' : '');
+  }catch(err){
+    status.textContent = "Failed to fetch data: " + err.message + ". The API may be temporarily unavailable — try again in a moment.";
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function backtest(dates, closes, lookback, slPct, tpPct, riskPct, account, direction, dailyLossLimit, maxDrawdownLimit, profitTarget){
+  const resistance = new Array(closes.length).fill(null);
+  const support = new Array(closes.length).fill(null);
+  for(let i=lookback;i<closes.length;i++){
+    const win = closes.slice(i-lookback,i);
+    resistance[i] = Math.max(...win);
+    support[i] = Math.min(...win);
+  }
+
+  const trades = [];
+  const dailyCurve = [];
+  const ruleEvents = [];
+  let realizedEquity = account;
+  let pos = null;
+  let dayStartEquity = account;   // equity baseline at the start of the current calendar day
+  let currentCalendarDate = null;
+  let lastBarEquity = account;
+  let peakEquity = account;
+  let stoppedEarly = false;
+  let stopReason = null;
+
+  const riskAmount = account * riskPct;
+
+  function floatingPnl(p, price){
+    const retPct = p.side==='long' ? (price-p.entryPrice)/p.entryPrice : (p.entryPrice-price)/p.entryPrice;
+    return (retPct/slPct) * riskAmount;
+  }
+
+  for(let i=lookback;i<closes.length;i++){
+    const price = closes[i];
+    let dayFloating = 0;
+
+    if(pos){
+      let exit=null, reason=null;
+      if(pos.side==='long'){
+        if(price<=pos.stop){exit=pos.stop; reason='Stop loss';}
+        else if(price>=pos.target){exit=pos.target; reason='Take profit';}
+        else if(price<support[i]){exit=price; reason='Support break';}
+      } else {
+        if(price>=pos.stop){exit=pos.stop; reason='Stop loss';}
+        else if(price<=pos.target){exit=pos.target; reason='Take profit';}
+        else if(price>resistance[i]){exit=price; reason='Resistance break';}
+      }
+      if(exit!==null){
+        const retPct = pos.side==='long' ? (exit-pos.entryPrice)/pos.entryPrice : (pos.entryPrice-exit)/pos.entryPrice;
+        const pnl = (retPct/slPct) * riskAmount;
+        realizedEquity += pnl;
+        trades.push({side:pos.side, entryDate:pos.entryDate, entryPrice:pos.entryPrice,
+                      exitDate:dates[i], exitPrice:exit, reason, retPct, pnl});
+        pos = null;
+      } else {
+        dayFloating = floatingPnl(pos, price);
+      }
+    }
+
+    if(!pos){
+      // only open a new position if we didn't just close one this same bar's exit check above
+      const justClosed = trades.length && trades[trades.length-1].exitDate===dates[i];
+      if(!justClosed){
+        if(price > resistance[i]){
+          pos = {side:'long', entryPrice:price, entryDate:dates[i], stop:price*(1-slPct), target:price*(1+tpPct)};
+        } else if(direction==='both' && price < support[i]){
+          pos = {side:'short', entryPrice:price, entryDate:dates[i], stop:price*(1+slPct), target:price*(1-tpPct)};
+        }
+      }
+    }
+
+    const todayEquity = realizedEquity + dayFloating;
+    const barDate = dates[i].split(' ')[0]; // strip time-of-day, if any
+    if(currentCalendarDate===null){
+      currentCalendarDate = barDate;
+    } else if(barDate !== currentCalendarDate){
+      dayStartEquity = lastBarEquity; // carry forward equity as-of the previous day's close
+      currentCalendarDate = barDate;
+    }
+    const dailyChange = todayEquity - dayStartEquity;
+
+    dailyCurve.push({date:dates[i], equity:todayEquity});
+
+    if(dailyChange <= -dailyLossLimit){
+      ruleEvents.push({date:dates[i], type:'Daily loss limit breached', detail:`Equity moved ${dailyChange.toFixed(2)} since start of day vs. limit of -${dailyLossLimit}`});
+      stoppedEarly = true; stopReason = 'daily_loss';
+      break;
+    }
+    if(todayEquity > peakEquity) peakEquity = todayEquity;
+    const dd = peakEquity - todayEquity;
+    if(dd >= maxDrawdownLimit){
+      ruleEvents.push({date:dates[i], type:'Max drawdown breached', detail:`Drawdown from peak reached ${dd.toFixed(2)} vs. limit of ${maxDrawdownLimit}`});
+      stoppedEarly = true; stopReason = 'drawdown';
+      break;
+    }
+    if(todayEquity - account >= profitTarget){
+      ruleEvents.push({date:dates[i], type:'Profit target reached', detail:`Equity gain hit +${(todayEquity-account).toFixed(2)} vs. target of ${profitTarget}`});
+      stoppedEarly = true; stopReason = 'target';
+      break;
+    }
+
+    lastBarEquity = todayEquity;
+  }
+
+  const wins = trades.filter(t=>t.pnl>0);
+  const losses = trades.filter(t=>t.pnl<=0);
+  const grossProfit = wins.reduce((s,t)=>s+t.pnl,0);
+  const grossLoss = Math.abs(losses.reduce((s,t)=>s+t.pnl,0));
+  const finalEquity = dailyCurve.length ? dailyCurve[dailyCurve.length-1].equity : account;
+  const totalReturn = ((finalEquity-account)/account)*100;
+  const winRate = trades.length ? (wins.length/trades.length)*100 : 0;
+  const profitFactor = grossLoss>0 ? grossProfit/grossLoss : (grossProfit>0?Infinity:0);
+
+  let peak = account, maxDD = 0;
+  dailyCurve.forEach(p=>{
+    if(p.equity>peak) peak=p.equity;
+    const ddPct = (peak-p.equity)/peak*100;
+    if(ddPct>maxDD) maxDD=ddPct;
+  });
+
+  return {trades, dailyCurve, resistance, support, stats:{
+    totalReturn, winRate, profitFactor, maxDD, count:trades.length,
+    avgWin: wins.length ? grossProfit/wins.length : 0,
+    avgLoss: losses.length ? grossLoss/losses.length : 0,
+    finalEquity
+  }, challenge:{
+    stoppedEarly, stopReason, ruleEvents, account, dailyLossLimit, maxDrawdownLimit, profitTarget
+  }};
+}
+
+function renderResults(result, dates, closes, lookback){
+  document.getElementById('priceChartPanel').style.display = 'block';
+  document.getElementById('tradeHeadRow').innerHTML =
+    '<th>#</th><th>Side</th><th>Entry date</th><th>Entry</th><th>Exit date</th><th>Exit</th><th>Reason</th><th>Return</th>';
+  document.getElementById('results').style.display='block';
+  const s = result.stats;
+  const statsGrid = document.getElementById('statsGrid');
+  const fmt = (n,d=2)=>Number(n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
+  statsGrid.innerHTML = `
+    <div class="stat"><div class="label">Total return</div><div class="value ${s.totalReturn>=0?'pos':'neg'}">${s.totalReturn>=0?'+':''}${fmt(s.totalReturn)}%</div></div>
+    <div class="stat"><div class="label">Win rate</div><div class="value">${fmt(s.winRate,1)}%</div></div>
+    <div class="stat"><div class="label">Profit factor</div><div class="value">${isFinite(s.profitFactor)?fmt(s.profitFactor):'∞'}</div></div>
+    <div class="stat"><div class="label">Max drawdown</div><div class="value neg">${fmt(s.maxDD)}%</div></div>
+    <div class="stat"><div class="label">Trades</div><div class="value">${s.count}</div></div>
+    <div class="stat"><div class="label">Avg win</div><div class="value pos">$${fmt(s.avgWin)}</div></div>
+    <div class="stat"><div class="label">Avg loss</div><div class="value neg">$${fmt(s.avgLoss)}</div></div>
+    <div class="stat"><div class="label">Final equity</div><div class="value">$${fmt(s.finalEquity)}</div></div>
+  `;
+
+  drawPriceChart(dates, closes, result.resistance, result.support, result.trades, lookback);
+  drawEquityChart(result.dailyCurve, result.challenge);
+
+  renderChallengeStatus(result.challenge);
+
+  const tbody = document.getElementById('tradeBody');
+  tbody.innerHTML = '';
+  document.getElementById('noTrades').style.display = result.trades.length ? 'none':'block';
+  result.trades.forEach((t,i)=>{
+    const tr = document.createElement('tr');
+    const retColor = t.pnl>=0 ? 'pos':'neg';
+    tr.innerHTML = `<td>${i+1}</td><td>${t.side}</td><td>${t.entryDate}</td><td>$${fmt(t.entryPrice,2)}</td>
+      <td>${t.exitDate}</td><td>$${fmt(t.exitPrice,2)}</td><td>${t.reason}</td>
+      <td class="${retColor}">${t.retPct>=0?'+':''}${fmt(t.retPct*100,2)}%</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderChallengeStatus(challenge){
+  const statusEl = document.getElementById('challengeStatus');
+  const fmt = (n,d=2)=>Number(n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
+  let badge;
+  if(challenge.stopReason==='target'){
+    badge = `<div class="badge pass">PASSED — profit target reached</div>`;
+  } else if(challenge.stopReason==='daily_loss'){
+    badge = `<div class="badge fail">FAILED — daily loss limit breached</div>`;
+  } else if(challenge.stopReason==='drawdown'){
+    badge = `<div class="badge fail">FAILED — max drawdown breached</div>`;
+  } else {
+    badge = `<div class="badge" style="background:rgba(124,139,155,.15);color:var(--muted);border:1px solid var(--line);">INCOMPLETE — window ended with no breach or target hit</div>`;
+  }
+  statusEl.innerHTML = badge + `<div class="badge-detail">Rules tested: account $${fmt(challenge.account,0)} · max daily loss $${fmt(challenge.dailyLossLimit,0)} · max drawdown $${fmt(challenge.maxDrawdownLimit,0)} · profit target $${fmt(challenge.profitTarget,0)}</div>`;
+
+  const tbody = document.getElementById('ruleEventsBody');
+  tbody.innerHTML = '';
+  document.getElementById('noRuleEvents').style.display = challenge.ruleEvents.length ? 'none':'block';
+  challenge.ruleEvents.forEach(e=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${e.date}</td><td>${e.type}</td><td>${e.detail}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function drawPriceChart(dates, closes, resistance, support, trades, lookback){
+  const canvas = document.getElementById('priceChart');
+  const dpr = window.devicePixelRatio||1;
+  const w = canvas.clientWidth, h = 280;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  const sliceStart = lookback;
+  const vals = closes.slice(sliceStart);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const pad = (max-min)*0.08 || max*0.01;
+  const yMin = min-pad, yMax = max+pad;
+  const n = closes.length;
+  const x = i => 40 + (i-sliceStart)/(n-1-sliceStart) * (w-60);
+  const y = v => h-30 - (v-yMin)/(yMax-yMin) * (h-50);
+
+  ctx.strokeStyle = '#1F3040';
+  ctx.lineWidth = 1;
+  for(let g=0; g<=4; g++){
+    const yy = 20 + g*(h-50)/4;
+    ctx.beginPath(); ctx.moveTo(40,yy); ctx.lineTo(w-20,yy); ctx.stroke();
+  }
+
+  function line(arr, color){
+    ctx.strokeStyle = color; ctx.lineWidth = 1.4; ctx.beginPath();
+    let started=false;
+    for(let i=sliceStart;i<n;i++){
+      if(arr[i]==null) continue;
+      const px=x(i), py=y(arr[i]);
+      if(!started){ctx.moveTo(px,py); started=true;} else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+  }
+  line(resistance, '#D9A441');
+  line(support, '#4E8FBF');
+  line(closes, '#E8EDF2');
+
+  trades.forEach(t=>{
+    const ei = dates.indexOf(t.entryDate), xi = dates.indexOf(t.exitDate);
+    ctx.fillStyle = '#3FB68B';
+    ctx.beginPath(); ctx.arc(x(ei), y(t.entryPrice), 3.2, 0, 7); ctx.fill();
+    ctx.fillStyle = '#E2604F';
+    ctx.beginPath(); ctx.arc(x(xi), y(t.exitPrice), 3.2, 0, 7); ctx.fill();
+  });
+
+  ctx.fillStyle = '#7C8B9B';
+  ctx.font = '11px IBM Plex Mono';
+  ctx.fillText(max.toFixed(4), w-55, 24);
+  ctx.fillText(min.toFixed(4), w-55, h-32);
+}
+
+function drawEquityChart(curve, challenge){
+  const canvas = document.getElementById('equityChart');
+  const dpr = window.devicePixelRatio||1;
+  const w = canvas.clientWidth, h = 220;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  if(!curve.length) return;
+
+  const targetLevel = challenge ? challenge.account + challenge.profitTarget : null;
+  const floorLevel = challenge ? challenge.account - challenge.maxDrawdownLimit : null;
+
+  const vals = curve.map(p=>p.equity);
+  let min = Math.min(...vals), max = Math.max(...vals);
+  if(targetLevel!=null){ min=Math.min(min,floorLevel); max=Math.max(max,targetLevel); }
+  const pad = (max-min)*0.1 || max*0.02;
+  const yMin = min-pad, yMax=max+pad;
+  const x = i => 50 + i/(curve.length-1||1) * (w-70);
+  const y = v => h-30 - (v-yMin)/(yMax-yMin) * (h-50);
+
+  ctx.strokeStyle = '#1F3040';
+  for(let g=0; g<=4; g++){
+    const yy = 20 + g*(h-50)/4;
+    ctx.beginPath(); ctx.moveTo(50,yy); ctx.lineTo(w-20,yy); ctx.stroke();
+  }
+
+  if(targetLevel!=null){
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle = '#3FB68B'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(50,y(targetLevel)); ctx.lineTo(w-20,y(targetLevel)); ctx.stroke();
+    ctx.strokeStyle = '#E2604F';
+    ctx.beginPath(); ctx.moveTo(50,y(floorLevel)); ctx.lineTo(w-20,y(floorLevel)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#7C8B9B'; ctx.font = '10px IBM Plex Mono';
+    ctx.fillText('target', 52, y(targetLevel)-4);
+    ctx.fillText('max drawdown floor', 52, y(floorLevel)-4);
+  }
+
+  const startEq = curve[0].equity;
+  ctx.strokeStyle = curve[curve.length-1].equity>=startEq ? '#3FB68B':'#E2604F';
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  curve.forEach((p,i)=>{
+    const px=x(i), py=y(p.equity);
+    if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+  });
+  ctx.stroke();
+
+  if(challenge && challenge.stoppedEarly){
+    const lastIdx = curve.length-1;
+    const color = challenge.stopReason==='target' ? '#3FB68B' : '#E2604F';
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(x(lastIdx), y(curve[lastIdx].equity), 4.5, 0, 7); ctx.fill();
+  }
+
+  ctx.fillStyle = '#7C8B9B';
+  ctx.font = '11px IBM Plex Mono';
+  ctx.fillText('$'+max.toFixed(0), w-60, 24);
+  ctx.fillText('$'+min.toFixed(0), w-60, h-32);
+}
+</script>
+</body>
+</html>
