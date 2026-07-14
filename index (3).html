@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Name — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #E7EAEF;
+    --paper-dot: rgba(29,36,51,0.08);
+    --surface: #FFFFFF;
+    --ink: #1D2433;
+    --ink-soft: #565F73;
+    --line: #D7DBE2;
+    --accent: #C8842A;
+    --accent-ink: #1D2433;
+    --accent2: #2E7D6B;
+    --accent2-soft: #E4F1EC;
+    --accent-soft: #F7ECDA;
+    --statusbar: #1D2433;
+    --statusbar-ink: #E7EAEF;
+    --shadow: 0 30px 60px -20px rgba(29,36,51,0.35), 0 8px 20px -8px rgba(29,36,51,0.15);
+    --radius: 10px;
+  }
+
+  html.dark{
+    --bg: #0B0E13;
+    --paper-dot: rgba(231,234,239,0.06);
+    --surface: #12161D;
+    --ink: #E7EAEF;
+    --ink-soft: #93A0B7;
+    --line: #262C38;
+    --accent: #E8A33D;
+    --accent-ink: #1D2433;
+    --accent2: #5FBFA8;
+    --accent2-soft: #16241F;
+    --accent-soft: #241C0E;
+    --statusbar: #05070A;
+    --statusbar-ink: #93A0B7;
+    --shadow: 0 30px 70px -20px rgba(0,0,0,0.7), 0 8px 20px -8px rgba(0,0,0,0.5);
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin: 0;
+    background:
+      radial-gradient(var(--paper-dot) 1px, transparent 1px) 0 0/22px 22px,
+      var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    transition: background-color .35s ease, color .35s ease;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+  }
+
+  a{ color: inherit; }
+  a:focus-visible, button:focus-visible{
+    outline: 2px solid var(--accent2);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Editor window ---------- */
+  .editor{
+    max-width: 860px;
+    width: 92%;
+    margin: 48px auto 0;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    flex: 1 0 auto;
+    transition: background-color .35s ease, border-color .35s ease;
+  }
+
+  .titlebar{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    background: var(--statusbar);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .dots{ display: flex; gap: 7px; flex: 0 0 auto; }
+  .dots span{
+    width: 11px; height: 11px; border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-red{ background: #FF5F57; }
+  .dot-yellow{ background: #FEBC2E; }
+  .dot-green{ background: #28C840; }
+
+  .tabs{
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 auto;
+    overflow: hidden;
+    gap: 2px;
+  }
+  .tab{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--statusbar-ink);
+    padding: 6px 12px;
+    border-radius: 6px 6px 0 0;
+    white-space: nowrap;
+  }
+  .tab.active{
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .theme-toggle{
+    flex: 0 0 auto;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--statusbar-ink);
+    border-radius: 999px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform .25s ease, border-color .25s ease;
+  }
+  .theme-toggle:hover{ transform: translateY(-1px); border-color: var(--accent); }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding: 56px 44px 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .kicker{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent2);
+    margin: 0 0 10px;
+  }
+  .kicker::before{ content: "01  "; color: var(--ink-soft); }
+  h1{
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2.1rem, 5vw, 3.2rem);
+    font-weight: 700;
+    margin: 0 0 8px;
+    line-height: 1.05;
+  }
+  .tagline{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .tagline::before{ content: "// "; color: var(--accent); }
+
+  .links{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 16px;
+  }
+  .links a{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent2);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .links a:hover{ border-color: var(--accent2); }
+
+  /* ---------- Sections ---------- */
+  section.block{
+    padding: 36px 44px;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-head{
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 18px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .section-head .brace{ color: var(--ink-soft); font-size: 0.85rem; }
+  .section-head h2{
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .about-text{
+    font-size: 1.02rem;
+    line-height: 1.7;
+    color: var(--ink);
+    max-width: 60ch;
+  }
+
+  /* ---------- Projects as file cards ---------- */
+  .project{
+    display: flex;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background: var(--bg);
+    transition: border-color .2s ease, transform .2s ease;
+  }
+  .project:hover{ border-color: var(--accent2); transform: translateX(2px); }
+  .gutter{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    background: var(--surface);
+    padding: 16px 10px;
+    text-align: right;
+    line-height: 1.9;
+    border-right: 1px solid var(--line);
+    user-select: none;
+    flex: 0 0 auto;
+  }
+  .project-body{ padding: 16px 20px; flex: 1 1 auto; }
+  .project-file{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent2);
+    margin: 0 0 6px;
+  }
+  .project-file .file-link{
+    color: var(--accent2);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s ease;
+  }
+  .project-file .file-link:hover{ border-color: var(--accent2); }
+  .project-file .path{ color: var(--ink-soft); }
+  .project-body p{
+    margin: 0 0 12px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .stack{ display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    padding: 3px 9px;
+    border-radius: 5px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    border: 1px solid var(--accent);
+  }
+  .chip.alt{
+    background: var(--accent2-soft);
+    color: var(--accent2);
+    border-color: var(--accent2);
+  }
+
+  /* ---------- Status bar footer ---------- */
+  .statusbar{
+    background: var(--statusbar);
+    color: var(--statusbar-ink);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    flex: 0 0 auto;
+  }
+  .statusbar .left, .statusbar .right{
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .statusbar span{ white-space: nowrap; }
+  .status-link{
+    white-space: nowrap;
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s ease;
+  }
+  .status-link:hover{ border-color: currentColor; }
+
+  .page-footer{
+    text-align: center;
+    padding: 18px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  @media (max-width: 640px){
+    .hero{ padding: 40px 22px 28px; }
+    section.block{ padding: 26px 22px; }
+    .gutter{ display: none; }
+    .tabs{ display: none; }
+    .titlebar{ justify-content: space-between; }
+    .statusbar .left span:nth-child(2),
+    .statusbar .right span:nth-child(1){ display: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="editor">
+    <div class="titlebar">
+      <div class="dots">
+        <span class="dot-red"></span>
+        <span class="dot-yellow"></span>
+        <span class="dot-green"></span>
+      </div>
+      <div class="tabs">
+        <span class="tab active">portfolio.html</span>
+        <span class="tab">about.md</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+    </div>
+
+    <header class="hero">
+      <p class="kicker">console.log</p>
+      <h1>Bad Alien</h1>
+      <p class="tagline">Learning to code, one project at a time</p>
+      <div class="links">
+        <a href="https://github.com/sky250909-sketch" target="_blank" rel="noopener">↗ github.com/sky250909-sketch</a>
+        <a href="mailto:sky250909@gmail.com">✉ sky250909@gmail.com</a>
+      </div>
+    </header>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="brace">/*</span>
+        <h2>About</h2>
+        <span class="brace">*/</span>
+      </div>
+      <p class="about-text">I'm on the early side of my coding journey, learning by building — starting with a single <code>print("Hello, world!")</code> and working up from there. Right now I'm focused on Python: writing small command-line tools, working with files and data, and slowly getting comfortable with the kind of problem-solving that turns an idea into a working script. Every project on this page is a step along the way.</p>
+    </section>
+
+    <section class="block">
+      <div class="section-head">
+        <span class="brace">&lt;</span>
+        <h2>Projects</h2>
+        <span class="brace">/&gt;</span>
+      </div>
+
+      <div class="project">
+        <div class="gutter">01</div>
+        <div class="project-body">
+          <p class="project-file"><a class="file-link" href="https://github.com/sky250909-sketch/python-projects/blob/main/hello.py" target="_blank" rel="noopener">hello<span class="path">.py</span></a></p>
+          <p>Where it all started — the first program I ever ran. Simple, but every project below grew out of this one line.</p>
+          <div class="stack">
+            <span class="chip">Python</span>
+            <span class="chip alt">First Steps</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project">
+        <div class="gutter">01<br>02<br>03<br>04</div>
+        <div class="project-body">
+          <p class="project-file"><a class="file-link" href="https://github.com/sky250909-sketch/python-projects/blob/main/todo.py" target="_blank" rel="noopener">todo<span class="path">.py</span></a></p>
+          <p>A command-line to-do list app. Tasks are stored in a JSON file so your list is still there the next time you run it — add, view, and remove tasks right from the terminal.</p>
+          <div class="stack">
+            <span class="chip">Python</span>
+            <span class="chip alt">JSON</span>
+            <span class="chip">CLI</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project">
+        <div class="gutter">01<br>02<br>03</div>
+        <div class="project-body">
+          <p class="project-file"><a class="file-link" href="https://github.com/sky250909-sketch/python-projects/blob/main/generate_data.py" target="_blank" rel="noopener">generate_data<span class="path">.py</span></a></p>
+          <p>A script that generates a realistic sample sales dataset — random products, regions, quantities, and prices written out to a CSV file, ready for analysis.</p>
+          <div class="stack">
+            <span class="chip">Python</span>
+            <span class="chip alt">CSV</span>
+            <span class="chip">Data Generation</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="statusbar">
+      <div class="left">
+        <a class="status-link" href="https://github.com/sky250909-sketch" target="_blank" rel="noopener">⎇ main</a>
+        <span>✓ 3 projects</span>
+      </div>
+      <div class="right">
+        <span>UTF-8</span>
+        <span>Ln 1, Col 1</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="page-footer">&copy; 2026 Bad Alien</p>
+
+  <script>
+    function toggleTheme(){
+      const root = document.documentElement;
+      const btn = document.getElementById("themeToggle");
+      root.classList.toggle("dark");
+      const isDark = root.classList.contains("dark");
+      btn.textContent = isDark ? "☀️" : "🌙";
+      btn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+    }
+  </script>
+
+</body>
+</html>
