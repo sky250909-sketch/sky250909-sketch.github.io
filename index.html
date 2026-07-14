@@ -8,6 +8,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  .fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
   :root{
     --bg: #0E1116;
     --surface: #161B22;
@@ -294,7 +303,7 @@
   <div class="spotlight" id="spotlight"></div>
   <div class="eyebrow">Portfolio — 2026</div>
   <h1>I build things<br>that feel <em>deliberate.</em></h1>
-  <p class="hero-sub">Bad Alien — student and developer, learning by building. Currently exploring web development and diving into algorithmic trading tools on the side.</p>
+  <p class="hero-sub" id="typewriter"></p>
   <div class="hero-cta">
     <a href="#work" class="btn">View Work</a>
     <a href="#contact" class="btn-ghost">Get in touch</a>
@@ -311,7 +320,7 @@
     <div class="section-count">03 / Featured</div>
   </div>
   <div class="work-list">
-    <div class="work-item">
+    <div class="work-item fade-in">
       <div class="work-index">01</div>
       <div>
         <div class="work-name">To-Do List CLI</div>
@@ -319,7 +328,7 @@
       </div>
       <div class="work-arrow">↗</div>
     </div>
-    <div class="work-item">
+    <div class="work-item fade-in">
       <div class="work-index">02</div>
       <div>
         <div class="work-name">Sales Data Analyzer</div>
@@ -327,7 +336,7 @@
       </div>
       <div class="work-arrow">↗</div>
     </div>
-    <div class="work-item">
+    <div class="work-item fade-in">
       <div class="work-index">03</div>
       <div>
         <div class="work-name">Sample Data Generator</div>
@@ -346,10 +355,10 @@
     </div>
   </div>
   <div class="about-grid">
-    <div class="about-text">
+    <div class="about-text fade-in">
       I'm Bad Alien — a student and developer who likes <span class="accent">learning by doing</span>. This site is a work in progress as I build out real projects and figure out what I want to focus on.
     </div>
-    <div class="about-meta">
+    <div class="about-meta fade-in">
       <div class="meta-block">
         <div class="meta-label">Based In</div>
         <div class="meta-value">Online, mostly</div>
@@ -367,7 +376,7 @@
 </section>
 
 <footer id="contact">
-  <div class="footer-title">Let's build <em>something</em> together.</div>
+  <div class="footer-title fade-in">Let's build <em>something</em> together.</div>
   <div class="footer-bottom">
     <div>© 2026 Bad Alien</div>
     <div class="footer-links">
@@ -394,6 +403,34 @@
     spotlight.style.setProperty('--x', x + '%');
     spotlight.style.setProperty('--y', y + '%');
   });
+  // typewriter effect
+const typewriterText = "Bad Alien — student and developer, learning by building. Currently exploring web development and diving into algorithmic trading tools on the side.";
+const typewriterEl = document.getElementById('typewriter');
+let charIndex = 0;
+
+function typeWriter() {
+  if (charIndex < typewriterText.length) {
+    typewriterEl.textContent += typewriterText.charAt(charIndex);
+    charIndex++;
+    setTimeout(typeWriter, 25);
+  }
+}
+
+typeWriter();
+typeWriter();
+
+// scroll fade-in
+const fadeElements = document.querySelectorAll('.fade-in');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+
+fadeElements.forEach(el => observer.observe(el));
 </script>
 
 </body>
