@@ -6,418 +6,396 @@
 <title>Your Name — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #E7EAEF;
-    --paper-dot: rgba(29,36,51,0.08);
-    --surface: #FFFFFF;
-    --ink: #1D2433;
-    --ink-soft: #565F73;
-    --line: #D7DBE2;
-    --accent: #C8842A;
-    --accent-ink: #1D2433;
-    --accent2: #2E7D6B;
-    --accent2-soft: #E4F1EC;
-    --accent-soft: #F7ECDA;
-    --statusbar: #1D2433;
-    --statusbar-ink: #E7EAEF;
-    --shadow: 0 30px 60px -20px rgba(29,36,51,0.35), 0 8px 20px -8px rgba(29,36,51,0.15);
-    --radius: 10px;
-  }
-
-  html.dark{
-    --bg: #0B0E13;
-    --paper-dot: rgba(231,234,239,0.06);
-    --surface: #12161D;
-    --ink: #E7EAEF;
-    --ink-soft: #93A0B7;
-    --line: #262C38;
+    --bg: #0E1116;
+    --surface: #161B22;
+    --ink: #F5F3EE;
+    --ink-soft: #9AA3AD;
+    --line: #2A3038;
     --accent: #E8A33D;
-    --accent-ink: #1D2433;
-    --accent2: #5FBFA8;
-    --accent2-soft: #16241F;
-    --accent-soft: #241C0E;
-    --statusbar: #05070A;
-    --statusbar-ink: #93A0B7;
-    --shadow: 0 30px 70px -20px rgba(0,0,0,0.7), 0 8px 20px -8px rgba(0,0,0,0.5);
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+  a{ color: inherit; text-decoration: none; }
+
+  ::selection{ background: var(--accent); color: #0E1116; }
+
+  /* NAV */
+  nav{
+    position: fixed; top:0; left:0; right:0;
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 28px 6vw;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    background: rgba(14,17,22,0.7);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s ease;
+  }
+  nav.scrolled{ border-bottom-color: var(--line); }
+  .logo{
+    font-family:'Fraunces', serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.02em;
+  }
+  .nav-links{ display:flex; gap: 40px; }
+  .nav-links a{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    transition: color .2s ease;
+  }
+  .nav-links a:hover{ color: var(--accent); }
+
+  /* HERO */
+  .hero{
+    min-height: 100vh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding: 0 6vw;
+    position: relative;
+  }
+  .spotlight{
+    position: absolute; inset:0;
+    pointer-events:none;
+    background: radial-gradient(400px circle at var(--x,50%) var(--y,50%), rgba(232,163,61,0.08), transparent 70%);
+    transition: background .1s ease;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display:flex; align-items:center; gap: 10px;
+  }
+  .eyebrow::before{
+    content:''; width:24px; height:1px; background: var(--accent);
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(2.8rem, 8vw, 6.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    max-width: 16ch;
+  }
+  h1 em{
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .hero-sub{
+    margin-top: 28px;
+    max-width: 46ch;
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+  }
+  .hero-cta{
+    margin-top: 44px;
+    display:flex; gap: 20px; align-items:center;
+  }
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 15px 28px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 2px;
+    transition: all .25s ease;
+  }
+  .btn:hover{ background: var(--accent); color: #0E1116; }
+  .btn-ghost{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+    transition: color .2s ease, border-color .2s ease;
+  }
+  .btn-ghost:hover{ color: var(--ink); border-color: var(--ink); }
+
+  .scroll-cue{
+    position:absolute; bottom: 40px; left: 6vw;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.1em;
+    display:flex; align-items:center; gap: 12px;
+  }
+  .scroll-cue::after{
+    content:''; width:1px; height: 32px; background: var(--line);
+    animation: pulse-line 2s ease-in-out infinite;
+  }
+  @keyframes pulse-line{
+    0%,100%{ background: var(--line); }
+    50%{ background: var(--accent); }
   }
 
-  *{ box-sizing: border-box; }
+  /* SECTION SHARED */
+  section{ padding: 140px 6vw; }
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom: 70px;
+    flex-wrap: wrap; gap: 20px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 28px;
+  }
+  .section-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .section-title{
+    font-family:'Fraunces', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 500;
+    margin-top: 8px;
+  }
+  .section-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
 
-  body{
-    margin: 0;
-    background:
-      radial-gradient(var(--paper-dot) 1px, transparent 1px) 0 0/22px 22px,
-      var(--bg);
+  /* WORK */
+  .work-list{ display:flex; flex-direction:column; }
+  .work-item{
+    display:grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items:center;
+    gap: 32px;
+    padding: 36px 0;
+    border-bottom: 1px solid var(--line);
+    transition: padding-left .3s ease, background .3s ease;
+    cursor: pointer;
+  }
+  .work-item:hover{
+    padding-left: 20px;
+    background: var(--surface);
+  }
+  .work-index{
+    font-family:'IBM Plex Mono', monospace;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+  .work-name{
+    font-family:'Fraunces', serif;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    font-weight: 500;
+  }
+  .work-tags{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+  .work-arrow{
+    font-size: 1.4rem;
+    color: var(--accent);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all .3s ease;
+  }
+  .work-item:hover .work-arrow{ opacity: 1; transform: translateX(0); }
+
+  /* ABOUT */
+  .about-grid{
+    display:grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 80px;
+  }
+  .about-text{
+    font-family:'Fraunces', serif;
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    font-weight: 400;
+    line-height: 1.4;
     color: var(--ink);
-    font-family: 'IBM Plex Sans', sans-serif;
-    transition: background-color .35s ease, color .35s ease;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  }
+  .about-text .accent{ color: var(--accent); font-style: italic; }
+  .about-meta{ display:flex; flex-direction:column; gap: 28px; }
+  .meta-block{ border-top: 1px solid var(--line); padding-top: 16px; }
+  .meta-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .meta-value{ font-size: 0.95rem; }
+
+  /* CONTACT / FOOTER */
+  footer{
+    padding: 100px 6vw 50px;
+    border-top: 1px solid var(--line);
+  }
+  .footer-title{
+    font-family:'Fraunces', serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 500;
+    max-width: 14ch;
+  }
+  .footer-title em{ color: var(--accent); font-style: italic; font-weight: 400; }
+  .footer-bottom{
+    margin-top: 60px;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap: wrap; gap: 20px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+  }
+  .footer-links{ display:flex; gap: 28px; }
+  .footer-links a:hover{ color: var(--accent); }
+
+  @media (max-width: 720px){
+    .nav-links{ display:none; }
+    .work-item{ grid-template-columns: 40px 1fr; }
+    .work-arrow{ display:none; }
+    .about-grid{ grid-template-columns: 1fr; gap: 40px; }
+    section{ padding: 90px 6vw; }
   }
 
   @media (prefers-reduced-motion: reduce){
-    *{ transition: none !important; animation: none !important; }
-  }
-
-  a{ color: inherit; }
-  a:focus-visible, button:focus-visible{
-    outline: 2px solid var(--accent2);
-    outline-offset: 3px;
-    border-radius: 4px;
-  }
-
-  /* ---------- Editor window ---------- */
-  .editor{
-    max-width: 860px;
-    width: 92%;
-    margin: 48px auto 0;
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    border: 1px solid var(--line);
-    flex: 1 0 auto;
-    transition: background-color .35s ease, border-color .35s ease;
-  }
-
-  .titlebar{
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 10px 14px;
-    background: var(--statusbar);
-    border-bottom: 1px solid var(--line);
-  }
-
-  .dots{ display: flex; gap: 7px; flex: 0 0 auto; }
-  .dots span{
-    width: 11px; height: 11px; border-radius: 50%;
-    display: inline-block;
-  }
-  .dot-red{ background: #FF5F57; }
-  .dot-yellow{ background: #FEBC2E; }
-  .dot-green{ background: #28C840; }
-
-  .tabs{
-    display: flex;
-    align-items: stretch;
-    flex: 1 1 auto;
-    overflow: hidden;
-    gap: 2px;
-  }
-  .tab{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--statusbar-ink);
-    padding: 6px 12px;
-    border-radius: 6px 6px 0 0;
-    white-space: nowrap;
-  }
-  .tab.active{
-    background: var(--surface);
-    color: var(--ink);
-  }
-
-  .theme-toggle{
-    flex: 0 0 auto;
-    background: transparent;
-    border: 1px solid var(--line);
-    color: var(--statusbar-ink);
-    border-radius: 999px;
-    width: 34px;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: transform .25s ease, border-color .25s ease;
-  }
-  .theme-toggle:hover{ transform: translateY(-1px); border-color: var(--accent); }
-
-  /* ---------- Hero ---------- */
-  .hero{
-    padding: 56px 44px 40px;
-    border-bottom: 1px solid var(--line);
-  }
-  .kicker{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--accent2);
-    margin: 0 0 10px;
-  }
-  .kicker::before{ content: "01  "; color: var(--ink-soft); }
-  h1{
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(2.1rem, 5vw, 3.2rem);
-    font-weight: 700;
-    margin: 0 0 8px;
-    line-height: 1.05;
-  }
-  .tagline{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.95rem;
-    color: var(--ink-soft);
-    margin: 0;
-  }
-  .tagline::before{ content: "// "; color: var(--accent); }
-
-  .links{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    margin-top: 16px;
-  }
-  .links a{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.85rem;
-    color: var(--accent2);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color .2s ease, color .2s ease;
-  }
-  .links a:hover{ border-color: var(--accent2); }
-
-  /* ---------- Sections ---------- */
-  section.block{
-    padding: 36px 44px;
-    border-bottom: 1px solid var(--line);
-  }
-  .section-head{
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 18px;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-  .section-head .brace{ color: var(--ink-soft); font-size: 0.85rem; }
-  .section-head h2{
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.3rem;
-    margin: 0;
-    font-weight: 600;
-  }
-
-  .about-text{
-    font-size: 1.02rem;
-    line-height: 1.7;
-    color: var(--ink);
-    max-width: 60ch;
-  }
-
-  /* ---------- Projects as file cards ---------- */
-  .project{
-    display: flex;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 16px;
-    background: var(--bg);
-    transition: border-color .2s ease, transform .2s ease;
-  }
-  .project:hover{ border-color: var(--accent2); transform: translateX(2px); }
-  .gutter{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--ink-soft);
-    background: var(--surface);
-    padding: 16px 10px;
-    text-align: right;
-    line-height: 1.9;
-    border-right: 1px solid var(--line);
-    user-select: none;
-    flex: 0 0 auto;
-  }
-  .project-body{ padding: 16px 20px; flex: 1 1 auto; }
-  .project-file{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.85rem;
-    color: var(--accent2);
-    margin: 0 0 6px;
-  }
-  .project-file .file-link{
-    color: var(--accent2);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color .2s ease;
-  }
-  .project-file .file-link:hover{ border-color: var(--accent2); }
-  .project-file .path{ color: var(--ink-soft); }
-  .project-body p{
-    margin: 0 0 12px;
-    line-height: 1.6;
-    color: var(--ink);
-  }
-  .stack{ display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    padding: 3px 9px;
-    border-radius: 5px;
-    background: var(--accent-soft);
-    color: var(--accent-ink);
-    border: 1px solid var(--accent);
-  }
-  .chip.alt{
-    background: var(--accent2-soft);
-    color: var(--accent2);
-    border-color: var(--accent2);
-  }
-
-  /* ---------- Status bar footer ---------- */
-  .statusbar{
-    background: var(--statusbar);
-    color: var(--statusbar-ink);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 16px;
-    flex: 0 0 auto;
-  }
-  .statusbar .left, .statusbar .right{
-    display: flex;
-    gap: 16px;
-    align-items: center;
-  }
-  .statusbar span{ white-space: nowrap; }
-  .status-link{
-    white-space: nowrap;
-    color: inherit;
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color .2s ease;
-  }
-  .status-link:hover{ border-color: currentColor; }
-
-  .page-footer{
-    text-align: center;
-    padding: 18px;
-    font-size: 0.8rem;
-    color: var(--ink-soft);
-    font-family: 'IBM Plex Mono', monospace;
-  }
-
-  @media (max-width: 640px){
-    .hero{ padding: 40px 22px 28px; }
-    section.block{ padding: 26px 22px; }
-    .gutter{ display: none; }
-    .tabs{ display: none; }
-    .titlebar{ justify-content: space-between; }
-    .statusbar .left span:nth-child(2),
-    .statusbar .right span:nth-child(1){ display: none; }
+    *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   }
 </style>
 </head>
 <body>
 
-  <div class="editor">
-    <div class="titlebar">
-      <div class="dots">
-        <span class="dot-red"></span>
-        <span class="dot-yellow"></span>
-        <span class="dot-green"></span>
-      </div>
-      <div class="tabs">
-        <span class="tab active">portfolio.html</span>
-        <span class="tab">about.md</span>
-      </div>
-      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+<nav id="nav">
+  <div class="logo">Your Name</div>
+  <div class="nav-links">
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="spotlight" id="spotlight"></div>
+  <div class="eyebrow">Portfolio — 2026</div>
+  <h1>I build things<br>that feel <em>deliberate.</em></h1>
+  <p class="hero-sub">Your Name — a short line about what you do. Designer, developer, or maker: swap this for one sharp sentence about your focus and the kind of work you take on.</p>
+  <div class="hero-cta">
+    <a href="#work" class="btn">View Work</a>
+    <a href="#contact" class="btn-ghost">Get in touch</a>
+  </div>
+  <div class="scroll-cue">SCROLL</div>
+</section>
+
+<section id="work">
+  <div class="section-head">
+    <div>
+      <div class="section-label">Selected Work</div>
+      <div class="section-title">Recent Projects</div>
     </div>
-
-    <header class="hero">
-      <p class="kicker">console.log</p>
-      <h1>Bad Alien</h1>
-      <p class="tagline">Learning to code, one project at a time</p>
-      <div class="links">
-        <a href="https://github.com/sky250909-sketch" target="_blank" rel="noopener">↗ github.com/sky250909-sketch</a>
-        <a href="mailto:sky250909@gmail.com">✉ sky250909@gmail.com</a>
+    <div class="section-count">03 / Featured</div>
+  </div>
+  <div class="work-list">
+    <div class="work-item">
+      <div class="work-index">01</div>
+      <div>
+        <div class="work-name">Project One</div>
+        <div class="work-tags">Web App · Design · 2026</div>
       </div>
-    </header>
-
-    <section class="block">
-      <div class="section-head">
-        <span class="brace">/*</span>
-        <h2>About</h2>
-        <span class="brace">*/</span>
+      <div class="work-arrow">↗</div>
+    </div>
+    <div class="work-item">
+      <div class="work-index">02</div>
+      <div>
+        <div class="work-name">Project Two</div>
+        <div class="work-tags">Brand · Frontend · 2025</div>
       </div>
-      <p class="about-text">I'm on the early side of my coding journey, learning by building — starting with a single <code>print("Hello, world!")</code> and working up from there. Right now I'm focused on Python: writing small command-line tools, working with files and data, and slowly getting comfortable with the kind of problem-solving that turns an idea into a working script. Every project on this page is a step along the way.</p>
-    </section>
-
-    <section class="block">
-      <div class="section-head">
-        <span class="brace">&lt;</span>
-        <h2>Projects</h2>
-        <span class="brace">/&gt;</span>
+      <div class="work-arrow">↗</div>
+    </div>
+    <div class="work-item">
+      <div class="work-index">03</div>
+      <div>
+        <div class="work-name">Project Three</div>
+        <div class="work-tags">Product · Strategy · 2025</div>
       </div>
+      <div class="work-arrow">↗</div>
+    </div>
+  </div>
+</section>
 
-      <div class="project">
-        <div class="gutter">01</div>
-        <div class="project-body">
-          <p class="project-file"><a class="file-link" href="https://github.com/sky250909-sketch/python-projects/blob/main/hello.py" target="_blank" rel="noopener">hello<span class="path">.py</span></a></p>
-          <p>Where it all started — the first program I ever ran. Simple, but every project below grew out of this one line.</p>
-          <div class="stack">
-            <span class="chip">Python</span>
-            <span class="chip alt">First Steps</span>
-          </div>
-        </div>
+<section id="about">
+  <div class="section-head">
+    <div>
+      <div class="section-label">About</div>
+      <div class="section-title">The Short Version</div>
+    </div>
+  </div>
+  <div class="about-grid">
+    <div class="about-text">
+      I'm Your Name, and I care about work that's <span class="accent">quiet, precise, and useful</span> — swap this paragraph for a couple of sentences about your background, what drives you, and what kind of problems you like solving.
+    </div>
+    <div class="about-meta">
+      <div class="meta-block">
+        <div class="meta-label">Based In</div>
+        <div class="meta-value">Your City, Country</div>
       </div>
-
-      <div class="project">
-        <div class="gutter">01<br>02<br>03<br>04</div>
-        <div class="project-body">
-          <p class="project-file"><a class="file-link" href="https://github.com/sky250909-sketch/python-projects/blob/main/todo.py" target="_blank" rel="noopener">todo<span class="path">.py</span></a></p>
-          <p>A command-line to-do list app. Tasks are stored in a JSON file so your list is still there the next time you run it — add, view, and remove tasks right from the terminal.</p>
-          <div class="stack">
-            <span class="chip">Python</span>
-            <span class="chip alt">JSON</span>
-            <span class="chip">CLI</span>
-          </div>
-        </div>
+      <div class="meta-block">
+        <div class="meta-label">Currently</div>
+        <div class="meta-value">Open to new projects</div>
       </div>
-
-      <div class="project">
-        <div class="gutter">01<br>02<br>03</div>
-        <div class="project-body">
-          <p class="project-file"><a class="file-link" href="https://github.com/sky250909-sketch/python-projects/blob/main/generate_data.py" target="_blank" rel="noopener">generate_data<span class="path">.py</span></a></p>
-          <p>A script that generates a realistic sample sales dataset — random products, regions, quantities, and prices written out to a CSV file, ready for analysis.</p>
-          <div class="stack">
-            <span class="chip">Python</span>
-            <span class="chip alt">CSV</span>
-            <span class="chip">Data Generation</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="statusbar">
-      <div class="left">
-        <a class="status-link" href="https://github.com/sky250909-sketch" target="_blank" rel="noopener">⎇ main</a>
-        <span>✓ 3 projects</span>
-      </div>
-      <div class="right">
-        <span>UTF-8</span>
-        <span>Ln 1, Col 1</span>
+      <div class="meta-block">
+        <div class="meta-label">Tools</div>
+        <div class="meta-value">List your key skills / stack here</div>
       </div>
     </div>
   </div>
+</section>
 
-  <p class="page-footer">&copy; 2026 Bad Alien</p>
+<footer id="contact">
+  <div class="footer-title">Let's build <em>something</em> together.</div>
+  <div class="footer-bottom">
+    <div>© 2026 Your Name</div>
+    <div class="footer-links">
+      <a href="mailto:you@email.com">Email</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">GitHub</a>
+    </div>
+  </div>
+</footer>
 
-  <script>
-    function toggleTheme(){
-      const root = document.documentElement;
-      const btn = document.getElementById("themeToggle");
-      root.classList.toggle("dark");
-      const isDark = root.classList.contains("dark");
-      btn.textContent = isDark ? "☀️" : "🌙";
-      btn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
-    }
-  </script>
+<script>
+  // nav border on scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // hero spotlight follows cursor
+  const hero = document.getElementById('hero');
+  const spotlight = document.getElementById('spotlight');
+  hero.addEventListener('mousemove', (e) => {
+    const rect = hero.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    spotlight.style.setProperty('--x', x + '%');
+    spotlight.style.setProperty('--y', y + '%');
+  });
+</script>
 
 </body>
 </html>
